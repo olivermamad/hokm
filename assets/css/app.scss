@@ -1,0 +1,21 @@
+nav {
+  text-align: center;
+  font-size: 34px;
+  padding: 5px;
+}
+
+.header {
+  margin-bottom: 20px;
+
+  @media(max-height: 800px) {
+    margin-bottom: 15px;
+  }
+}
+
+a:hover {
+  cursor: pointer;
+}
+
+body {
+  padding: 0 50px;
+}
