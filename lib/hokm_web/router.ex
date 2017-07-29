@@ -16,11 +16,13 @@ defmodule HokmWeb.Router do
   scope "/", HokmWeb do
     pipe_through :browser # Use the default browser stack
 
-    get "/", PageController, :index
+    get "/", HomeController, :index
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", HokmWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", HokmWeb.Api do
+    pipe_through :api
+
+    resources "/deck", DeckController, only: [:create]
+  end
 end
