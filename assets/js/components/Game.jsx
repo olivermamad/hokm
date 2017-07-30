@@ -9,13 +9,14 @@ export default class Game extends React.Component {
       player3: [],
       player4: []
     },
+    trick: [],
     hokm: ''
   };
 
   async componentDidMount() {
     let response = await fetch('/api/deck', { method: 'POST' });
     this.deck = (await response.json()).deck
-    this.setState({ hands: {...this.state.hands, player1: this.deck.splice(0, 5)}  })
+    this.setState({ hands: {...this.state.hands, player1: this.deck.splice(0, 5)} })
   }
 
   hokmSelected() {
@@ -31,50 +32,71 @@ export default class Game extends React.Component {
     }})
   }
 
-  onCardClick = (card) => {
+  onCardClick(player, card) {
     if (!this.hokmSelected()) {
       this.setState({hokm: card.suit})
       this.dealRestOfCards()
       return
     }
+
+    let index = Object.keys(this.state.hands).indexOf(player)
+    let newTrick = [...this.state.trick];
+    newTrick[index] = card
+    this.setState({trick: newTrick})
   }
 
-  renderCard = (card) => {
+  renderCard = (player, card, clickable) => {
+    let {suit} = card
+    if (suit == 'Diamonds') suit = 'diams'
+
     return (
-      <div onClick={() => this.onCardClick(card)}>
-        <span>
-          {card.value}
-        </span>
-        <span>
-          {card.suit}
-        </span>
-      </div>
+      <li>
+        <a
+          onClick={() => {if (clickable) this.onCardClick(player, card)}}
+          className={`card rank-${card.value} ${suit.toLowerCase()}`}
+          href="#"
+        >
+          <span className="rank">
+            {card.value}
+          </span>
+          <span
+            className="suit"
+            dangerouslySetInnerHTML={{__html: `&${suit.toLowerCase()};`}}
+          >
+          </span>
+        </a>
+      </li>
     )
   }
 
   renderHand(player, hand) {
     return (
-      <div key={player}>
+      <ul className="hand" key={player}>
         {`${player}'s Hand`}
-        {hand.map(this.renderCard)}
+        {hand.map(card => this.renderCard(player, card, true))}
         <br></br>
-      </div>
+      </ul>
     )
   }
 
-  renderHands(hands) {
-    return Object.keys(hands).map((player) => {
+  renderHands() {
+    return Object.keys(this.state.hands).map((player) => {
       return this.renderHand(player, this.state.hands[player])
     })
   }
 
+  renderTrick() {
+    return this.state.trick.map(card => this.renderCard(null, card))
+  }
+
   render() {
     return [
-      <div>
+      <div className="playingCards faceImages">
         <div>
           Hokm {this.state.hokm}
         </div>
-        {this.renderHands(this.state.hands)}
+        {this.renderHands()}
+        {this.renderTrick()}
       </div>
     ]
   }
